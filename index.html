@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <!-- Garante que o site fique bom no celular -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boletim Digital</title>
+  <!-- Ligação com o arquivo de estilo -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- CABEÇALHO -->
+  <header class="cabecalho">
+    <h1>🎀 Boletim Digital</h1>
+    <p class="subtitulo">8º Ano • Estudante Exemplo</p>
+  </header>
+
+  <!-- CARDS DE RESUMO -->
+  <section class="cards">
+    <div class="card">
+      <span class="card-icone">📊</span>
+      <h2>Média Geral</h2>
+      <p id="card-media-geral">—</p>
+    </div>
+
+    <div class="card">
+      <span class="card-icone">📝</span>
+      <h2>Total de Faltas</h2>
+      <p id="card-total-faltas">—</p>
+    </div>
+
+    <div class="card">
+      <span class="card-icone">💖</span>
+      <h2>Bom Desempenho</h2>
+      <p id="card-bom-desempenho">—</p>
+    </div>
+
+    <div class="card">
+      <span class="card-icone">⚠️</span>
+      <h2>Precisam de Atenção</h2>
+      <p id="card-atencao">—</p>
+    </div>
+
+    <div class="card">
+      <span class="card-icone">🗓️</span>
+      <h2>Frequência</h2>
+      <p id="card-frequencia">—</p>
+    </div>
+  </section>
+
+  <!-- TABELA DE NOTAS -->
+  <section class="tabela-container">
+    <h2 class="titulo-tabela">📚 Notas por Disciplina</h2>
+
+    <div class="tabela-rolavel">
+      <table>
+        <thead>
+          <tr>
+            <th>Disciplina</th>
+            <th>1º Tri</th>
+            <th>2º Tri</th>
+            <th>3º Tri</th>
+            <th>Média</th>
+            <th>Faltas</th>
+            <th>Situação</th>
+          </tr>
+        </thead>
+        <!-- O JavaScript vai preencher o corpo da tabela automaticamente -->
+        <tbody id="corpo-tabela"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Ligação com o JavaScript (fica no fim para a página carregar primeiro) -->
+  <script src="script.js"></script>
+</body>
+</html>
