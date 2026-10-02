@@ -184,4 +184,4 @@ document.getElementById("card-bom-desempenho").textContent = bomDesempenho;
 document.getElementById("card-atencao").textContent = atencao;
 
 document.getElementById("card-frequencia").textContent =
-  frequenciaDemonstrativa + "% • Frequência adequada";.
+  frequenciaDemonstrativa + "% • Frequência adequada";
