@@ -296,7 +296,85 @@ tbody tr:hover {
   background-color: #ffe6e6;
 }
 
-/* ===== RESPONSIVIDADE (celular) ===== */
+/* ===== ÁREA DOS GRÁFICOS ===== */
+.area-graficos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.grafico-card {
+  background-color: var(--branco);
+  border-radius: 24px;
+  padding: 20px 16px;
+  box-shadow: 0 6px 16px var(--sombra);
+  border: 2px solid var(--rosa-bebe);
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.grafico-card h2 {
+  color: var(--rosa-pink);
+  font-size: 1.1rem;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.cabecalho-card-faltas {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.cabecalho-card-faltas h2 {
+  margin-bottom: 0;
+}
+
+.badge-perigo {
+  background-color: #d13636;
+  color: var(--branco);
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 3px 10px;
+  border-radius: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.card-perigo {
+  border-color: #d13636 !important;
+  box-shadow: 0 6px 18px rgba(209, 54, 54, 0.3) !important;
+}
+
+.grafico-container {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-height: 280px;
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 992px) {
+  .area-graficos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .area-graficos {
+    grid-template-columns: 1fr;
+  }
+
+  .grafico-container {
+    min-height: 250px;
+  }
+}
+
 @media (max-width: 500px) {
   .cabecalho h1 {
     font-size: 1.5rem;

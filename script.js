@@ -6,7 +6,7 @@ const CONFIG_ALUNO = {
 };
 
 // ============================================================
-// DADOS FICTÍCIOS DO 8º ANO (fallback quando não há dados na API)
+// DADOS FICTÍCIOS DO 8º ANO (fallback quando não há dados na API)a
 // ============================================================
 const dadosFicticios = [
   { disciplina: "Língua Portuguesa", tri1: 82, tri2: "7,8", tri3: 85, faltas: [2, 1, 1] },
@@ -32,6 +32,13 @@ const MEDIA_MINIMA = 6.0;
 // Estado da sessão em memória
 let pinSessao = null;
 let dadosBoletimAtual = null;
+
+// ============================================================
+// INSTÂNCIAS DOS GRÁFICOS
+// ============================================================
+let graficoMedias = null;
+let graficoEvolucao = null;
+let graficoFaltas = null;
 
 // ============================================================
 // FUNÇÃO: normalizarNota
@@ -269,6 +276,9 @@ function renderizarBoletim(listaDisciplinas) {
   document.getElementById("card-atencao").textContent = atencao;
   document.getElementById("card-frequencia").textContent =
     frequenciaDemonstrativa + "% • Frequência adequada";
+
+  // Chamada de atualização dos gráficos (somente leitura)
+  atualizarGraficos();
 }
 
 // ============================================================
@@ -442,4 +452,251 @@ async function salvarEdicao() {
   } catch (erro) {
     msgEdicao.textContent = "Não foi possível conectar ao servidor. Tente novamente.";
   }
+}
+
+// ============================================================
+// FUNÇÕES EXCLUSIVAS DOS GRÁFICOS (SOMENTE LEITURA)
+// ============================================================
+
+function atualizarGraficoMedias() {
+  const canvas = document.getElementById("graficoMediasDisciplinas");
+  if (!canvas) return;
+
+  if (graficoMedias) {
+    graficoMedias.destroy();
+  }
+
+  if (!Array.isArray(dadosBoletimAtual)) return;
+
+  const labels = [];
+  const valores = [];
+
+  dadosBoletimAtual.forEach((item) => {
+    labels.push(item.disciplina);
+    const n1 = normalizarNota(item.tri1);
+    const n2 = normalizarNota(item.tri2);
+    const n3 = normalizarNota(item.tri3);
+
+    const media = calcularMedia([n1, n2, n3]);
+    valores.push(media !== null ? Number(media.toFixed(1)) : null);
+  });
+
+  const ctx = canvas.getContext("2d");
+  graficoMedias = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: "Média",
+          data: valores,
+          backgroundColor: "#ff4fa3",
+          borderColor: "#e03e8c",
+          borderWidth: 1,
+          borderRadius: 6
+        }
+      ]
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              const val = context.raw;
+              if (val === null || val === undefined) return " Sem nota";
+              return " " + String(val.toFixed(1)).replace(".", ",");
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          min: 0,
+          max: 10,
+          ticks: { color: "#5a2a45" },
+          grid: { color: "#ffe4ef" }
+        },
+        y: {
+          ticks: { color: "#5a2a45", font: { size: 11 } },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+function atualizarGraficoEvolucao() {
+  const canvas = document.getElementById("graficoEvolucaoTrimestres");
+  if (!canvas) return;
+
+  if (graficoEvolucao) {
+    graficoEvolucao.destroy();
+  }
+
+  if (!Array.isArray(dadosBoletimAtual)) return;
+
+  const notasTri1 = [];
+  const notasTri2 = [];
+  const notasTri3 = [];
+
+  dadosBoletimAtual.forEach((item) => {
+    const n1 = normalizarNota(item.tri1);
+    const n2 = normalizarNota(item.tri2);
+    const n3 = normalizarNota(item.tri3);
+
+    if (n1 !== null) notasTri1.push(n1);
+    if (n2 !== null) notasTri2.push(n2);
+    if (n3 !== null) notasTri3.push(n3);
+  });
+
+  const mediaTri1 = notasTri1.length > 0 ? notasTri1.reduce((a, b) => a + b, 0) / notasTri1.length : null;
+  const mediaTri2 = notasTri2.length > 0 ? notasTri2.reduce((a, b) => a + b, 0) / notasTri2.length : null;
+  const mediaTri3 = notasTri3.length > 0 ? notasTri3.reduce((a, b) => a + b, 0) / notasTri3.length : null;
+
+  const valores = [
+    mediaTri1 !== null ? Number(mediaTri1.toFixed(1)) : null,
+    mediaTri2 !== null ? Number(mediaTri2.toFixed(1)) : null,
+    mediaTri3 !== null ? Number(mediaTri3.toFixed(1)) : null
+  ];
+
+  const ctx = canvas.getContext("2d");
+  graficoEvolucao = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: ["1º Tri", "2º Tri", "3º Tri"],
+      datasets: [
+        {
+          label: "Média Geral",
+          data: valores,
+          borderColor: "#ff4fa3",
+          backgroundColor: "rgba(255, 79, 163, 0.15)",
+          borderWidth: 3,
+          pointBackgroundColor: "#ff4fa3",
+          pointRadius: 6,
+          fill: true,
+          tension: 0.3
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              const val = context.raw;
+              if (val === null || val === undefined) return " Sem notas no trimestre";
+              return " " + String(val.toFixed(1)).replace(".", ",");
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          min: 0,
+          max: 10,
+          ticks: { color: "#5a2a45" },
+          grid: { color: "#ffe4ef" }
+        },
+        x: {
+          ticks: { color: "#5a2a45" },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+function atualizarGraficoFaltas() {
+  const canvas = document.getElementById("graficoFaltasTrimestres");
+  const estadoFaltasDiv = document.getElementById("estadoFaltas");
+  const cardFaltas = document.getElementById("card-grafico-faltas");
+
+  if (!canvas) return;
+
+  if (graficoFaltas) {
+    graficoFaltas.destroy();
+  }
+
+  if (!Array.isArray(dadosBoletimAtual)) return;
+
+  let faltasTri1 = 0;
+  let faltasTri2 = 0;
+  let faltasTri3 = 0;
+
+  dadosBoletimAtual.forEach((item) => {
+    if (Array.isArray(item.faltas)) {
+      faltasTri1 += Number(item.faltas[0]) || 0;
+      faltasTri2 += Number(item.faltas[1]) || 0;
+      faltasTri3 += Number(item.faltas[2]) || 0;
+    }
+  });
+
+  const totalFaltas = faltasTri1 + faltasTri2 + faltasTri3;
+
+  // Avaliação interna de risco (limite de 350 faltas)
+  if (estadoFaltasDiv) {
+    if (totalFaltas >= 350) {
+      estadoFaltasDiv.innerHTML = '<span class="badge-perigo">Perigo</span>';
+      if (cardFaltas) cardFaltas.classList.add("card-perigo");
+    } else {
+      estadoFaltasDiv.innerHTML = "";
+      if (cardFaltas) cardFaltas.classList.remove("card-perigo");
+    }
+  }
+
+  const ctx = canvas.getContext("2d");
+  graficoFaltas = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: ["1º Tri", "2º Tri", "3º Tri"],
+      datasets: [
+        {
+          label: "Faltas",
+          data: [faltasTri1, faltasTri2, faltasTri3],
+          backgroundColor: "#ff4fa3",
+          borderColor: "#e03e8c",
+          borderWidth: 1,
+          borderRadius: 8
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              return " " + context.raw + " faltas";
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color: "#5a2a45", precision: 0 },
+          grid: { color: "#ffe4ef" }
+        },
+        x: {
+          ticks: { color: "#5a2a45" },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+function atualizarGraficos() {
+  atualizarGraficoMedias();
+  atualizarGraficoEvolucao();
+  atualizarGraficoFaltas();
 }
